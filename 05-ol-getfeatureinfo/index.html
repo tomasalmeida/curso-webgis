@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactuando con el servidor con OpenLayers</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v5.2.0/css/ol.css" type="text/css">
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <div id="info" style="width: 100%"></div>
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
+    <script>
+        const toner = new ol.layer.Tile({
+            source: new ol.source.Stamen({
+                layer: 'toner'
+            })
+        })
+
+        const source = new ol.source.ImageWMS({
+          url: 'http://wms.mapama.es/sig/Agua/RedHidrograficaMDT/wms.aspx?',
+          params: {'LAYERS': 'HY.PhysicalWaters.Waterbodies'}
+        })
+        const rios = new ol.layer.Image({
+          source
+        })
+
+        const view = new ol.View({
+            center: [-8.8120584, 42.2154941],
+            zoom: 12,
+            projection: 'EPSG:4326'
+            })
+
+        const map = new ol.Map({
+            target: 'map',
+            view,
+            layers: [
+                toner,
+                rios
+            ]
+        });
+
+        map.on('singleclick', function(evt) {
+            const viewResolution = view.getResolution();
+            const url = source.getGetFeatureInfoUrl(
+              evt.coordinate, viewResolution, 'EPSG:4326',
+              {'INFO_FORMAT': 'text/html'});
+            if (url) {
+            document.getElementById('info').innerHTML =
+                '<iframe seamless src="' + url + '" style="width: 100%; height: 300px"></iframe>';
+            }
+        });
+    </script>
+  </body>
