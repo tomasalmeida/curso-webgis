@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>XYZ y OpenLayers</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v5.2.0/css/ol.css" type="text/css">
+    <style>
+      html, body, .map {
+        height: 100%
+      }
+    </style>
+  </head>
+  <body>
+     <div id="map" class="map"></div>
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
+    <script>
+      const PNOA = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+          url: 'http://www.ign.es/wms-inspire/pnoa-ma?',
+          params: {'LAYERS': 'OI.OrthoimageCoverage'},
+        })
+      });
+      const seaMap = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+          url: 'http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png'
+        })
+      });
+      let map = new ol.Map({
+        target: 'map',
+        view: new ol.View({
+          center: ol.proj.fromLonLat([-8.8120584, 42.2154941]),
+          zoom: 11
+        }),
+      layers: [
+        PNOA,
+        seaMap
+      ]
+      });
+    </script>
+  </body>
+</html>
