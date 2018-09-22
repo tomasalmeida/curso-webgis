@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Curso webgis - ol-GEOJson</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v5.2.0/css/ol.css" type="text/css">
+  <style>
+    html, body, .map {
+      height: 100%
+    }
+  </style>
+</head>
+<body>
+  <div id="map" class="map"></div>
+  <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
+  <script type="text/javascript">
+    const stroke = new ol.style.Stroke({color: 'black', width: 2});
+    const fill = new ol.style.Fill({color: 'red'});
+
+    const style = new ol.style.Style({
+        image: new ol.style.Circle({
+            fill,
+            stroke,
+            radius: 30
+        })
+    })
+    const PNOA = new ol.layer.Image({
+      source: new ol.source.ImageWMS({
+        url: 'http://www.ign.es/wms-inspire/pnoa-ma?',
+        params: {'LAYERS': 'OI.OrthoimageCoverage'},
+      })
+    });
+    const vigo = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        url: "vigo.geojson",
+        format: new ol.format.GeoJSON()
+      }),
+      style
+    });
+    let map = new ol.Map({
+      target: 'map',
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-8.8120584, 42.2154941]),
+        zoom: 12
+      }),
+      layers: [
+        PNOA,
+        vigo
+      ]
+    });
+  </script>
+</body>
+</html>
