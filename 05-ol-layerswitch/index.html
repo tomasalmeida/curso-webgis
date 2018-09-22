@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Control de Capas en OpenLayers</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v5.2.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="https://unpkg.com/ol-layerswitcher@3.0.0/src/ol-layerswitcher.css" />
+    <style>
+      html, body, .map {
+        height: 100%
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mouse-position"></div>
+    <div id="map" class="map"></div>
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
+    <script src="https://unpkg.com/ol-layerswitcher@3.0.0"></script>
+    <script>
+      const PNOA = new ol.layer.Image({
+        source: new ol.source.ImageWMS({
+          url: 'http://www.ign.es/wms-inspire/pnoa-ma?',
+          params: {'LAYERS': 'OI.OrthoimageCoverage'},
+        })
+      });
+      // Nuevas capas
+       const watercolor = new ol.layer.Tile({
+           source: new ol.source.Stamen({
+               layer: 'watercolor'
+           })
+       })
+       const labels = new ol.layer.Tile({
+           source: new ol.source.Stamen({
+               layer: 'terrain-labels'
+           })
+       })
+       const waterWithLabels = new ol.layer.Group({
+           title: "Watercolor con etiquetas",
+                   type: 'base',
+                   combine: true,
+                   visible: false,
+           layers: [
+               watercolor,
+               labels
+           ]
+       })
+
+       const watercolorHidden = new ol.layer.Tile({
+           title: 'Water color',
+           type: 'base',
+           visible: false,
+           source: new ol.source.Stamen({
+               layer: 'watercolor'
+           })
+       })
+       const osm = new ol.layer.Tile({
+           title: 'OSM',
+           type: 'base',
+           visible: true,
+           source: new ol.source.OSM()
+       })
+       const carreteras = new ol.layer.Image({
+           title: "Carreteras",
+           source: new ol.source.ImageWMS({
+               url: 'http://www.ign.es/wms-inspire/ign-base?',
+               params: {'LAYERS': 'IGNBaseOrto'},
+           })
+       })
+
+       // Grupos del arbol
+        const baseLayers = new ol.layer.Group({
+            'title': 'Base maps',
+            layers: [
+                waterWithLabels,
+                watercolorHidden,
+                osm
+            ]
+        })
+
+        const overlays = new ol.layer.Group({
+                title: 'Overlays',
+                layers: [
+                    carreteras
+                ]
+        })
+
+        // Control MousePosition
+        const mousePositionControl = new ol.control.MousePosition({
+            coordinateFormat: ol.coordinate.createStringXY(4),
+            projection: 'EPSG:4326',
+            className: 'custom-mouse-position',
+            target: document.getElementById('mouse-position'),
+            undefinedHTML: '&nbsp;'
+        });
+
+        let map = new ol.Map({
+          target: 'map',
+          view: new ol.View({
+            center: ol.proj.fromLonLat([-8.8120584, 42.2154941]),
+            zoom: 11
+          }),
+          layers: [
+            baseLayers,
+            overlays
+          ],
+          controls: ol.control.defaults().extend([
+               new ol.control.OverviewMap(),
+               mousePositionControl
+           ])
+        });
+
+        const layerSwitcher = new ol.control.LayerSwitcher({
+            tipLabel: 'Arbol de Capas'
+        });
+        map.addControl(layerSwitcher);
+    </script>
+  </body>
+</html>
