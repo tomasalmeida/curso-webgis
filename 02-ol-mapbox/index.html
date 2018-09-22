@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Curso webgis - ol-MapBox</title>
+  <link rel="stylesheet" href="https://openlayers.org/en/v5.2.0/css/ol.css" type="text/css">
+  <style>
+    html, body, .map {
+      height: 100%
+    }
+  </style>
+</head>
+<body>
+  <select id="layer-select"></select>
+  <div id="map" class="map"></div>
+  <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.2.0/build/ol.js"></script>
+  <script type="text/javascript">
+    const select = document.getElementById('layer-select');
+    let styles = [
+            'basic',
+            'streets',
+            'bright',
+            'light',
+            'dark',
+            'satellite'
+        ];
+      let layers = [];
+      let i, ii;
+      for (i = 0, ii = styles.length; i < ii; ++i) {
+         layers.push(new ol.layer.Tile({
+             visible: false,
+             preload: Infinity,
+             source: new ol.source.XYZ({
+               url: `https://api.mapbox.com/styles/v1/mapbox/${styles[i]}-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWljaG9nYXIiLCJhIjoiY2ptN3UzNXJnMDhpcDNrbm9tczlibDMzbCJ9.zr2VPbydp2PhiAG5UxVn4w`
+             })
+          }));
+          const option = document.createElement('option');
+          const val = document.createTextNode(styles[i]);
+          option.appendChild(val);
+          select.appendChild(option);
+      }
+    let map = new ol.Map({
+      target: 'map',
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-8.72, 42.24]),
+        zoom: 10
+      }),
+      layers
+    });
+    const onChange = () => {
+          let style = select.value;
+          for (let i = 0, ii = layers.length; i < ii; ++i) {
+            layers[i].setVisible(styles[i] === style);
+          }
+      }
+      select.addEventListener('change', onChange);
+      onChange();
+  </script>
+</body>
+</html>
